@@ -1,23 +1,34 @@
 import os
-from typing import Tuple, List
+import re
+from typing import List, Tuple
 
-from config import REPORT_KEYWORDS
+
+REPORT_PREFIXES = {
+    "End of Day": ("endofday", "eod", "dayend"),
+    "Daily Sales": ("dailysales", "dailysalesreport"),
+    "Sales by Tender": ("salesbytender", "tendersales", "tillsales"),
+    "Refunds": ("refunds", "refund", "returned"),
+    "Void Lines": ("voidlines", "voids", "void"),
+    "Petty Cash": ("pettycashreport", "pettycash"),
+    "Turnover by Report Category": (
+        "turnoverbyreportcategory",
+        "reportcategoryturnover",
+    ),
+}
 
 
 def normalize_name(name: str) -> str:
-    return name.lower().replace("_", " ").strip()
+    """Return a filename-safe comparison value with punctuation removed."""
+    stem = os.path.splitext(os.path.basename(name))[0]
+    return re.sub(r"[^a-z0-9]+", "", stem.lower())
 
 
 def recognize_report(filename: str) -> Tuple[str, List[str]]:
-    name = normalize_name(os.path.splitext(filename)[0])
-    recognized = []
-    unknown = []
+    """Recognise an EPOS Now report from the beginning of its filename."""
+    normalized_name = normalize_name(filename)
 
-    for report_name, keywords in REPORT_KEYWORDS.items():
-        if any(keyword in name for keyword in keywords):
-            recognized.append(report_name)
+    for report_name, prefixes in REPORT_PREFIXES.items():
+        if any(normalized_name.startswith(prefix) for prefix in prefixes):
+            return report_name, []
 
-    if not recognized:
-        unknown.append(filename)
-
-    return ", ".join(recognized), unknown
+    return "", [filename]
