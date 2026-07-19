@@ -7,12 +7,18 @@ from src.reports.report_recognition import recognize_report
     "filename, expected",
     [
         ("end_of_day_summary.xlsx", "End of Day"),
+        ("EndOfDay_2026_07_17_0504.xls", "End of Day"),
         ("Daily Sales Report.csv", "Daily Sales"),
+        ("DailySales_2026_07_17_0543.xls", "Daily Sales"),
         ("sales_by_tender.xls", "Sales by Tender"),
         ("refunds_2025.xlsx", "Refunds"),
         ("VOID_LINES.xls", "Void Lines"),
         ("petty_cash_report.csv", "Petty Cash"),
-        ("Turnover by report category.xlsx", "Turnover by Report Category"),
+        ("PettyCashReport_2026_07_17_0545.xls", "Petty Cash"),
+        (
+            "TurnoverByReportCategory_2026_07_17_0546.xls",
+            "Turnover by Report Category",
+        ),
     ],
 )
 def test_recognize_report(filename, expected):
