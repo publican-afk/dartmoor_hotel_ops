@@ -68,15 +68,18 @@ def import_reports_page(uploads, unknowns):
                 st.warning(f"Skipping unsupported file: {file.name}")
                 continue
 
-            saved_path = save_uploaded_file(file)
+            save_uploaded_file(file)
             df = load_file(file)
             report_name, unknown = recognize_report(file.name)
 
             if report_name:
-                uploads.append(report_name)
+                if report_name not in uploads:
+                    uploads.append(report_name)
                 st.success(f"Uploaded and recognised report: {file.name} -> {report_name}")
             else:
-                unknowns.extend(unknown)
+                for item in unknown:
+                    if item not in unknowns:
+                        unknowns.append(item)
                 st.warning(f"Uploaded but not recognised: {file.name}")
 
             if not df.empty:
@@ -87,12 +90,12 @@ def import_reports_page(uploads, unknowns):
 
     if uploads:
         st.markdown("### Recognised Reports")
-        for report in set(uploads):
+        for report in sorted(set(uploads)):
             st.write(f"- {report}")
 
     if unknowns:
         st.markdown("### Unrecognised Reports")
-        for report in set(unknowns):
+        for report in sorted(set(unknowns)):
             st.write(f"- {report}")
 
 
@@ -136,7 +139,12 @@ def main():
     uploads = st.session_state.get("uploads", [])
     unknowns = st.session_state.get("unknowns", [])
 
-    pages[page](uploads, unknowns) if page == "Import Reports" else pages[page]()
+    if page == "Import Reports":
+        pages[page](uploads, unknowns)
+    elif page == "Dashboard":
+        pages[page](uploads)
+    else:
+        pages[page]()
 
     st.session_state["uploads"] = uploads
     st.session_state["unknowns"] = unknowns
